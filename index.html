@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>关于读javascript语言精粹第三章总结</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1><a id="_0"></a>对象</h1>
+<p>javascript的简单数据类型包括数字，字符串,布尔值,null值和undefined值，其他所有的值都是对象。如下图所示 。<br>
+<img src="https://img-blog.csdnimg.cn/20190315204138286.png" alt="数据类型"><br>
+对象是属性的类型，其中每个属性都拥有名字（key)和属性(value),名字可以是包含空字符在内的任意字符串，属性值可以是除undefined值之外的任意值。</p>
+<p>Javascript里的对象是无类型的，不同于其他的语言（JAVA之类的），它对新属性的名字和属性值没有限制。对象可以包含其他对象，所以他们可以很容易的表示成树状结构或图形结构。</p>
+<p>Javascript包含一种原型链的特性，允许对象继承另一个对象的属性，在某种意义上更像是克隆，而不是类似于JAVA之类的class继承。正确的使用原型链可以减少对象初始化时消耗的时间和内存。</p>
+<h2><a id="_9"></a>对象字面量</h2>
+<p>对象字面量提供了一种非常方便的创建新对象值的表示法，一个字面量就是包围在一对花括号的所有key/value对。如下：</p>
+<pre><code>	var empty_object = {};
+
+	var stooge = {
+			"first-name": "Jerome",
+			"last-name": "Howard"
+	};
+</code></pre>
+<p>属性名可以为任何字符串。但如果是保留字如"first-name"需要用引号括住。而其他合法的标识符引号可不加。逗号用来分隔。</p>
+<p>对象之间是可以嵌套的</p>
+<pre><code>var flight ={
+	airline: "Oceanic",
+	number:815,
+	departture:{
+	IATA:"SYD",
+	time:"2004-09-23 10:42",
+	city:"Sydney"
+	},
+	arrival: {
+	IATA:"LAX",
+	time:"2004-09-23 10:42",
+	city:"Los Angeles"
+	}
+};
+</code></pre>
+<h2><a id="_39"></a>检索</h2>
+<p>要检索对象中包含的值，可以采用在[]后缀中括住一个字符串表达式的方式，如果是合法的标识符，优先用" . “表示法。<br>
+但是在某些方面来说” [   ] “更好，例如在表示变量非常量时，需要用” [    ] “更好。而对于常量的表达用” . "更好。</p>
+<pre><code>Stooge["first-name"]			//"Jerome"
+flight.departture.IATA          //"SYD"
+</code></pre>
+<p>如果检索一个并不存在的成员属性的值，将返回undefined，</p>
+<pre><code>stooge["middle-name"]				//undefined
+</code></pre>
+<p>||运算符可以填充默认值：</p>
+<pre><code>var middle =stooge["meddle-name"]||"(none)";		//填充默认值为none
+</code></pre>
+<p>&amp;&amp;运算符可以用来避免从undefined的成员属性中取值导致的TypeError异常。</p>
+<pre><code>	flight.equipment								    //undefined
+	flight.equipment.model					    		//throw	"TyoeError"
+	flight.equipment &amp;&amp; flight.equipment.model  		//undefined
+</code></pre>
+<h2><a id="_64"></a>更新</h2>
+<p>通过赋值语句更新，如果存在就替换，不存在就扩充到对象中</p>
+<h2><a id="_66"></a>引用</h2>
+<p>对象通过引用来传递，不会被复制</p>
+<pre><code>var x = stooge;
+stooge.nickname = 'Curly';
+var nick = stooge.nickname;
+//x和stooge指向同一个对象的引用。nick为‘Curly
+
+var a = {},b = {},c= {};//a,b,c每个都引用了 不同的空对象
+a = b = c = {};  //a,b,c每个都引用了同一对象。
+</code></pre>
+<h2><a id="_79"></a>原型</h2>
+<p>所有对象都有原型对象，通过对象字变量创建的对象都连接到Object.prototype.<br>
+原型连接在更新时是不起作用的，当改变对象时，原型不变。只有在检索值时会被用到，js如果无法在对象上检索到属性时，会从原型链上寻找。如果查找不到则返回undefined ,这个过程叫<strong>委托</strong></p>
+<p>原型关系是动态的，如果添加一个新的属性到原型上，则可以对所有基于该原型创建的对象可见。</p>
+<p>另外，个人从其他书中看到一个容易的误区，就是如果有时候我们可以Object.prototype上添加一些方法用来可以代替某些我们需要的功能。例如设计一个getid方法代替document.getementbyId()，可以使得书写不麻烦，但是这里有关于this指针的问题(主要是涉及到调用方式)不细讲，可以用apply方法去解决。<br>
+如下：</p>
+<pre><code>document.getElementById = (function(func){
+  	return function(){
+ 	   return func.apply(document,arguments);
+  }
+})(document.getElementById);
+
+	var getId = document.getElementById;
+	var div = getId('div1');
+	alert(div.id);				//输出 div1
+</code></pre>
+<h2><a id="_99"></a>反射</h2>
+<p>typeof 和hasOwnProperty方法可以判断对象的类型。hasOwnPropoerty不会检查原型链。</p>
+<h2><a id="_101"></a>枚举</h2>
+<p>for…in语句用来遍历一个对象的所有属性名，会列出所有属性，这样并不好，我们可以用hasOwnProperty或typeof方法过滤掉那些不想要的。</p>
+<pre><code>var name ;
+for(name in another_stooge){
+if(typeof another_stooge[name] !== 'function'){
+	document.writeln(name+':'+another_stooge[name]);
+	}
+}
+</code></pre>
+<p>尽量避免使用for  in语句来遍历。</p>
+<h2><a id="_114"></a>删除</h2>
+<p>delete只能删除对象上的，不涉及原型链上，甚至会使得原来被覆盖的属性显现出来。</p>
+<h2><a id="_117"></a>减少全局变量污染</h2>
+<p>js的全局变量应该最小化使用，只创建一个全局变量，然后在该变量中加入其他。</p>
+<pre><code>	var MYAPP = {};						//全局变量
+	//往变量中添加其他
+	MYAPP.stoop = {
+		"first-name" : "joe",
+	};
+	MYAPP.flight = {
+		airline:"Oceanic",
+		number:815,
+	}; 
+</code></pre>
+<p>这种把全局资源放入一个名称空间中，可以有效的减少污染。更易阅读。</p>
+</div>
+</body>
+
+</html>
